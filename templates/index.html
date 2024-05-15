@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Logistics Expense Calculator</h1>
+<form id="expense-form">
+    <div class="form-group">
+        <label for="from">From</label>
+        <input type="text" id="from" name="from" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="to">To</label>
+        <input type="text" id="to" name="to" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="gross_weight">Gross Weight (kg)</label>
+        <input type="number" id="gross_weight" name="gross_weight" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="size">Size (m³)</label>
+        <input type="number" id="size" name="size" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Calculate</button>
+</form>
+<div id="result" class="mt-3"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function initAutocomplete() {
+    var from = new google.maps.places.Autocomplete(document.getElementById('from'));
+    var to = new google.maps.places.Autocomplete(document.getElementById('to'));
+}
+
+$(document).ready(function() {
+    $('#expense-form').on('submit', function(e) {
+        e.preventDefault();
+        var formData = {
+            from: $('#from').val(),
+            to: $('#to').val(),
+            gross_weight: $('#gross_weight').val(),
+            size: $('#size').val()
+        };
+        $.ajax({
+            type: 'POST',
+            url: '/calculate',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            success: function(response) {
+                $('#result').html('<div class="alert alert-success">Estimated Expense: $' + response.expense.toFixed(2) + '</div>');
+            }
+        });
+    });
+});
+
+window.onload = function() {
+    initAutocomplete();
+};
+</script>
+{% endblock %}
