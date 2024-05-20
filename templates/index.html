@@ -1,25 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Logistics Expense Calculator</h1>
+<h1>Замын зардал тооцоолох</h1>
 <form id="expense-form">
     <div class="form-group">
-        <label for="from">From</label>
+        <label for="from">Хаанаас</label>
         <input type="text" id="from" name="from" class="form-control" required>
     </div>
     <div class="form-group">
-        <label for="to">To</label>
+        <label for="to">Хаана</label>
         <input type="text" id="to" name="to" class="form-control" required>
     </div>
     <div class="form-group">
-        <label for="gross_weight">Gross Weight (kg)</label>
+        <label for="car_type">Машины төрөл</label>
+        <select id="car_type" name="car_type" class="form-control" required>
+            <option value="car">Машин</option>
+            <option value="truck">Ачааны машин</option>
+            <option value="van">Фургон</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="gross_weight">Жин (кг)</label>
         <input type="number" id="gross_weight" name="gross_weight" class="form-control" required>
     </div>
     <div class="form-group">
-        <label for="size">Size (m³)</label>
+        <label for="size">Эзэлхүүн (м³)</label>
         <input type="number" id="size" name="size" class="form-control" required>
     </div>
-    <button type="submit" class="btn btn-primary">Calculate</button>
+    <button type="submit" class="btn btn-primary">тооцоолох</button>
 </form>
 <div id="result" class="mt-3"></div>
 {% endblock %}
@@ -37,6 +45,7 @@ $(document).ready(function() {
         var formData = {
             from: $('#from').val(),
             to: $('#to').val(),
+            car_type: $('#car_type').val(),
             gross_weight: $('#gross_weight').val(),
             size: $('#size').val()
         };
@@ -46,7 +55,17 @@ $(document).ready(function() {
             data: JSON.stringify(formData),
             contentType: 'application/json',
             success: function(response) {
-                $('#result').html('<div class="alert alert-success">Estimated Expense: $' + response.expense.toFixed(2) + '</div>');
+                $('#result').html(
+                    `<div class="alert alert-success">
+                        <p>Нийт хугацаа: ${response.duration} hours</p>
+                        <p>Бензины хэрэглээ: ${response.gasoline_usage.toFixed(2)} liters</p>
+                        <p>Бензины зардал: ₮${response.gasoline_expense.toFixed(2)}</p>
+                        <p>Хоол хүнс ₮${response.food_hotel_expense.toFixed(2)}</p>
+                        <p>Татвар: ₮${response.tax.toFixed(2)}</p>
+                        <p>Жолоочийн цалин: ₮${response.drivers_earning.toFixed(2)}</p>
+                        <p><b>Нийт зардал: ₮${response.total_expense.toFixed(2)}</b></p>
+                    </div>`
+                );
             }
         });
     });
